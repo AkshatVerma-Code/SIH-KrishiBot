@@ -317,7 +317,7 @@
 <body>
     <header>
         <nav id="nav">
-            <a href="#" class="logo-link">
+            <a href="/" class="logo-link">
                 <img src="/static/images/logo.png" alt="कृषिBot Logo" class="Logo">
             </a>
             
@@ -338,11 +338,36 @@
                             <img src="/static/images/Query-icon.png" alt="" aria-hidden="true">
                             <span data-translate="query">Query</span>
                         </a></li>
+                    <li><a href="/profile" class="a-li">
+                            <img src="/static/images/Profile-icon.png" alt="" aria-hidden="true">
+                            <span data-translate="myProfile">My Profile</span>
+                        </a></li>
                     <li><a href="/contact" class="a-li">
                             <img src="/static/images/Call-icon.png" alt="" aria-hidden="true">
                             <span data-translate="contact">Contact</span>
                         </a></li>
-                    
+                    <li><a href="/help" class="a-li">
+                            <img src="/static/images/Query-icon.png" alt="" aria-hidden="true">
+                            <span data-translate="help">Help&Support</span>
+                        </a></li>
+                    <li class="user-menu">
+                        {% if user %}
+                        <div class="user-info">
+                            <a href="/profile" class="a-li user-link">
+                                <img src="/static/images/profile2-icon.png" alt="" aria-hidden="true">
+                                <span>{{ user.first_name }}</span>
+                            </a>
+                            <a href="/logout" class="a-li logout-link">
+                                <span data-translate="logout">Logout</span>
+                            </a>
+                        </div>
+                        {% else %}
+                        <a href="/login" class="a-li">
+                            <!-- <img src="/static/images/login-icon.png" alt="" aria-hidden="true"> -->
+                            <span data-translate="login">Login/SignUp</span>
+                        </a>
+                        {% endif %}
+                    </li>
                 </ul>
                 <div class="dropdown">
                     <button class="dropbtn" aria-haspopup="true" aria-expanded="false" aria-label="Select language">
@@ -411,10 +436,10 @@
                         </div>
                     </div>
 
-                    <button class="edit-profile-btn" onclick="openEditProfileModal()">
+                    <!-- <button class="edit-profile-btn" onclick="openEditProfileModal()">
                         <i class="fa-solid fa-pen-to-square"></i>
                         <span data-translate="editProfile">Edit Profile</span>
-                    </button>
+                    </button> -->
             </div>
 
                 <!-- Main Content -->

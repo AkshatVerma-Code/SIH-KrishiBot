@@ -15,7 +15,7 @@
 <body>
     <header>
         <nav id="nav">
-            <a href="#" class="logo-link">
+            <a href="/" class="logo-link">
                 <img src="/static/images/logo.png" alt="कृषिBot Logo" class="Logo">
             </a>
 
@@ -32,6 +32,10 @@
                             <img src="/static/images/Home-icon.png" alt="" aria-hidden="true">
                             <span data-translate="home">Home</span>
                         </a></li>
+                    <li><a href="/chatbot" class="a-li">
+                            <img src="/static/images/Query-icon.png" alt="" aria-hidden="true">
+                            <span data-translate="query">Query</span>
+                        </a></li>
                     <li><a href="/profile" class="a-li">
                             <img src="/static/images/Profile-icon.png" alt="" aria-hidden="true">
                             <span data-translate="myProfile">My Profile</span>
@@ -40,7 +44,30 @@
                             <img src="/static/images/Call-icon.png" alt="" aria-hidden="true">
                             <span data-translate="contact">Contact</span>
                         </a></li>
-                    
+
+                    <li><a href="/help" class="a-li">
+                            <img src="/static/images/Query-icon.png" alt="" aria-hidden="true">
+                            <span data-translate="help">Help&Support</span>
+                        </a></li>
+                    <li class="user-menu">
+                        {% if user %}
+                        <div class="user-info">
+                            <a href="/profile" class="a-li user-link">
+                                <img src="/static/images/profile2-icon.png" alt="" aria-hidden="true">
+                                <span>{{ user.first_name }}</span>
+                            </a>
+                            <a href="/logout" class="a-li logout-link">
+                                <span data-translate="logout">Logout</span>
+                            </a>
+                        </div>
+                        {% else %}
+                        <a href="/login" class="a-li">
+                            <!-- <img src="/static/images/login-icon.png" alt="" aria-hidden="true"> -->
+                            <span data-translate="login">Login/SignUp</span>
+                        </a>
+                        {% endif %}
+                    </li>
+                </ul>
                 <div class="dropdown">
                     <button class="dropbtn" aria-haspopup="true" aria-expanded="false" aria-label="Select language">
                         <span id="selected-lang">

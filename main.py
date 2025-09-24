@@ -3,9 +3,9 @@ from functools import wraps
 import mysql.connector
 from mysql.connector import Error
 import google.generativeai as genai
-
+import re
 # Configure Gemini API
-genai.configure(api_key='API_KEY')
+genai.configure(api_key='AIzaSyBJxvh9nJGS__CrGqzNXQzibBom6zYAF24')
 model = genai.GenerativeModel('gemini-2.5-flash')
 
 app = Flask(__name__)
@@ -247,65 +247,135 @@ def profile():
         if 'connection' in locals() and connection.is_connected():
             connection.close()
 
-@app.route('/profile/update', methods=['POST'])
-@login_required
-def update_profile():
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({'success': False, 'message': 'No data provided'})
+# @app.route('/profile/update', methods=['POST'])
+# @login_required
+# def update_profile():
+#     try:
+#         data = request.get_json()
+#         if not data:
+#             return jsonify({'success': False, 'message': 'No data provided'})
 
+#         connection = create_db_connection()
+#         if connection is None:
+#             return jsonify({'success': False, 'message': 'Database connection error'})
+
+#         try:
+#             cursor = connection.cursor()
+            
+#             # Fields that can be updated
+#             allowed_fields = [
+#                 'phone', 'location', 'farm_size', 'soil_type', 
+#                 'primary_crops', 'irrigation_method', 'farming_type'
+#             ]
+            
+#             # Build update query dynamically based on provided fields
+#             update_fields = []
+#             values = []
+#             for field in allowed_fields:
+#                 if field in data:
+#                     update_fields.append(f"{field} = %s")
+#                     values.append(data[field])
+            
+#             if not update_fields:
+#                 return jsonify({'success': False, 'message': 'No valid fields to update'})
+            
+#             # Add user_id to values
+#             values.append(session['user_id'])
+            
+#             # Execute update query
+#             query = f"""
+#             UPDATE PersonalDetails 
+#             SET {', '.join(update_fields)}
+#             WHERE id = %s
+#             """
+#             cursor.execute(query, values)
+#             connection.commit()
+
+#             return jsonify({'success': True, 'message': 'Profile updated successfully'})
+
+#         finally:
+#             cursor.close()
+
+#     except Error as e:
+#         print(f"Database error in update_profile: {e}")
+#         return jsonify({'success': False, 'message': 'Database error occurred'})
+#     finally:
+#         if 'connection' in locals() and connection.is_connected():
+#             connection.close()
+
+@app.route('/contact')
+@login_required
+def contact():
+    try:
         connection = create_db_connection()
         if connection is None:
-            return jsonify({'success': False, 'message': 'Database connection error'})
+            return "Database connection error", 500
 
         try:
-            cursor = connection.cursor()
+            cursor = connection.cursor(dictionary=True)
             
-            # Fields that can be updated
-            allowed_fields = [
-                'phone', 'location', 'farm_size', 'soil_type', 
-                'primary_crops', 'irrigation_method', 'farming_type'
-            ]
-            
-            # Build update query dynamically based on provided fields
-            update_fields = []
-            values = []
-            for field in allowed_fields:
-                if field in data:
-                    update_fields.append(f"{field} = %s")
-                    values.append(data[field])
-            
-            if not update_fields:
-                return jsonify({'success': False, 'message': 'No valid fields to update'})
-            
-            # Add user_id to values
-            values.append(session['user_id'])
-            
-            # Execute update query
-            query = f"""
-            UPDATE PersonalDetails 
-            SET {', '.join(update_fields)}
-            WHERE id = %s
+            # Fetch user's personal and farm details from PersonalDetails table only
+            query = """
+            SELECT * FROM PersonalDetails WHERE id = %s
             """
-            cursor.execute(query, values)
-            connection.commit()
+            cursor.execute(query, (session['user_id'],))
+            user_data = cursor.fetchone()
 
-            return jsonify({'success': True, 'message': 'Profile updated successfully'})
-
+            if not user_data:
+                return redirect(url_for('login'))
+            
+            
+            return render_template(
+                "contact.html",
+                user=user_data  # For nav bar user info
+            )
+            
         finally:
             cursor.close()
 
     except Error as e:
-        print(f"Database error in update_profile: {e}")
-        return jsonify({'success': False, 'message': 'Database error occurred'})
+        print(f"Database error in profile: {e}")
+        return "Database error", 500
     finally:
         if 'connection' in locals() and connection.is_connected():
             connection.close()
 
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
+@app.route('/help')
+@login_required
+def help():
+    try:
+        connection = create_db_connection()
+        if connection is None:
+            return "Database connection error", 500
+
+        try:
+            cursor = connection.cursor(dictionary=True)
+            
+            # Fetch user's personal and farm details from PersonalDetails table only
+            query = """
+            SELECT * FROM PersonalDetails WHERE id = %s
+            """
+            cursor.execute(query, (session['user_id'],))
+            user_data = cursor.fetchone()
+
+            if not user_data:
+                return redirect(url_for('login'))
+            
+            
+            return render_template(
+                "help.html",
+                user=user_data  # For nav bar user info
+            )
+            
+        finally:
+            cursor.close()
+
+    except Error as e:
+        print(f"Database error in profile: {e}")
+        return "Database error", 500
+    finally:
+        if 'connection' in locals() and connection.is_connected():
+            connection.close()
 
 @app.route('/complete_profile')
 @login_required
@@ -465,7 +535,39 @@ def submit_feedback():
 @app.route('/chatbot')
 @login_required
 def chatbot_page():
-    return render_template('chatbot.html')
+    try:
+        connection = create_db_connection()
+        if connection is None:
+            return "Database connection error", 500
+
+        try:
+            cursor = connection.cursor(dictionary=True)
+            
+            # Fetch user's personal and farm details from PersonalDetails table only
+            query = """
+            SELECT * FROM PersonalDetails WHERE id = %s
+            """
+            cursor.execute(query, (session['user_id'],))
+            user_data = cursor.fetchone()
+
+            if not user_data:
+                return redirect(url_for('login'))
+            
+            
+            return render_template(
+                "chatbot.html",
+                user=user_data  # For nav bar user info
+            )
+            
+        finally:
+            cursor.close()
+
+    except Error as e:
+        print(f"Database error in profile: {e}")
+        return "Database error", 500
+    finally:
+        if 'connection' in locals() and connection.is_connected():
+            connection.close()
 
 
 def get_fallback_reply(msg):
@@ -538,6 +640,7 @@ def clean_response(text):
         
     # Join with double line breaks for readability
     return '\n'.join(cleaned_lines)
+
 
 def generate_reply_from_model(user_message):
     """Generate farming advice using Gemini AI with fallback to heuristics"""
